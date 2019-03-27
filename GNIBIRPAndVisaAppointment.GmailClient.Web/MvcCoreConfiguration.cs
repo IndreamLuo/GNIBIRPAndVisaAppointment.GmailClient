@@ -2,11 +2,11 @@ using Microsoft.Extensions.Configuration;
 
 namespace GNIBIRPAndVisaAppointment.GmailClient.Web
 {
-    public class ConfigurationManager : GmailClient.Application.IConfiguration
+    public class MvcCoreConfiguration : GmailClient.Application.IConfiguration
     {
         readonly IConfiguration Configuration;
 
-        public ConfigurationManager(IConfiguration configuration)
+        public MvcCoreConfiguration(IConfiguration configuration)
         {
             Configuration = configuration;
         }

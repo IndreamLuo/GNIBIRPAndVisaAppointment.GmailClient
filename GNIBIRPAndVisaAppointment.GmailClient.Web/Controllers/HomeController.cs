@@ -5,13 +5,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using GNIBIRPAndVisaAppointment.GmailClient.Web.Models;
+using GNIBIRPAndVisaAppointment.GmailClient.Application;
 
 namespace GNIBIRPAndVisaAppointment.GmailClient.Web.Controllers
 {
     public class HomeController : Controller
     {
-        public IActionResult Index()
+        GmailApplication GmailApplication;
+        public HomeController(GmailApplication gmailApplication)
         {
+            GmailApplication = gmailApplication;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            await GmailApplication.GetNewestAppointmentLetters();
+
             return View();
         }
 

@@ -36,7 +36,9 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Web
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSingleton<Application.IConfiguration, ConfigurationManager>();
+            services.AddSingleton<Application.IConfiguration, MvcCoreConfiguration>();
+            services.AddSingleton<ConfigurationManager, ConfigurationManager>();
+            services.AddSingleton<GmailApplication, GmailApplication>();
             services.AddSingleton<OAuthHelper>();
         }
 
