@@ -28,17 +28,8 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
             NotUploadedLabelName = configuration["NotUploadedLabelName"];
         }
 
-        const string LastGetAppointmentLetters = "LastGetAppointmentLetters";
-
         public async Task GetNewestAppointmentLetters()
         {
-            var lastGetAppointmentLetters = ConfigurationManager[LastGetAppointmentLetters];
-            
-            if (string.IsNullOrEmpty(lastGetAppointmentLetters))
-            {
-                lastGetAppointmentLetters = DateTime.Now.AddDays(-1).ToString("yyyy/MM/dd");
-            }
-
             var credential = await OAuthHelper.GetCredentialAsync();
 
             using (var gmailService = new GmailService(new BaseClientService.Initializer()
@@ -57,35 +48,36 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
                 var listResponse = listRequest.Execute();
                 var messages = listResponse.Messages;
 
-                foreach (var message in messages)
+                if (messages != null)
                 {
-                    var getRequest = gmailService.Users.Messages.Get("me", message.Id);
-                    var appointmentEmail = getRequest.Execute();
-
-                    string base64UrlMessage = appointmentEmail.Payload.Body.Data
-                            .Replace('_', '/')
-                            .Replace('-', '+');
-
-                    switch(appointmentEmail.Payload.Body.Data.Length % 4) {
-                        case 2: base64UrlMessage += "=="; break;
-                        case 3: base64UrlMessage += "="; break;
-                    }
-
-                    var emailMessageBytes = Convert.FromBase64String(base64UrlMessage);
-                    var emailMessage = Encoding.ASCII.GetString(emailMessageBytes);
-
-                    if (await SubmitAppointmentLetter(message.Id, emailMessage))
+                    foreach (var message in messages)
                     {
-                        var removeLabelRequest = gmailService.Users.Messages.Modify(new ModifyMessageRequest
+                        var getRequest = gmailService.Users.Messages.Get("me", message.Id);
+                        var appointmentEmail = getRequest.Execute();
+
+                        string base64UrlMessage = appointmentEmail.Payload.Body.Data
+                                .Replace('_', '/')
+                                .Replace('-', '+');
+
+                        switch(appointmentEmail.Payload.Body.Data.Length % 4) {
+                            case 2: base64UrlMessage += "=="; break;
+                            case 3: base64UrlMessage += "="; break;
+                        }
+
+                        var emailMessageBytes = Convert.FromBase64String(base64UrlMessage);
+                        var emailMessage = Encoding.ASCII.GetString(emailMessageBytes);
+
+                        if (await SubmitAppointmentLetter(message.Id, emailMessage))
                         {
-                            RemoveLabelIds = new [] { label.Id }
-                        }, "me", message.Id);
-                        var removedLabelMessage = removeLabelRequest.Execute();
+                            var removeLabelRequest = gmailService.Users.Messages.Modify(new ModifyMessageRequest
+                            {
+                                RemoveLabelIds = new [] { label.Id }
+                            }, "me", message.Id);
+                            var removedLabelMessage = removeLabelRequest.Execute();
+                        }
                     }
                 }
             }
-
-            ConfigurationManager[LastGetAppointmentLetters] = DateTime.Now.AddDays(-1).ToString("yyyy/MM/dd");
         }
 
         public async Task<bool> SubmitAppointmentLetter(string id, string message)
