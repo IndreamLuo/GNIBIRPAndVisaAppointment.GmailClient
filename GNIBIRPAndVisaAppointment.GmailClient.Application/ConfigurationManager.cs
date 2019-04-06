@@ -5,12 +5,14 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
 {
     public class ConfigurationManager
     {
+        readonly string HomeApiToken;
         readonly string HomeUrl;
         readonly string GetUrl;
         readonly string SetUrl;
 
         public ConfigurationManager(IConfiguration configuration)
         {
+            HomeApiToken = configuration["HomeApiToken"];
             HomeUrl = configuration["HomeUrl"];
             GetUrl = HomeUrl + "Api/Configuration/Get";
             SetUrl = HomeUrl + "Api/Configuration/Set";
@@ -24,6 +26,7 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
                 {
                     var response = httpClient.PostAsync(GetUrl, new FormUrlEncodedContent(new []
                     {
+                        new KeyValuePair<string, string>("token", HomeApiToken),
                         new KeyValuePair<string, string>("area", "Gmail"),
                         new KeyValuePair<string, string>("key", key)
                     }))
@@ -40,6 +43,7 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
                 {
                     httpClient.PostAsync(SetUrl, new FormUrlEncodedContent(new []
                     {
+                        new KeyValuePair<string, string>("token", HomeApiToken),
                         new KeyValuePair<string, string>("area", "Gmail"),
                         new KeyValuePair<string, string>("key", key),
                         new KeyValuePair<string, string>("value", value)
