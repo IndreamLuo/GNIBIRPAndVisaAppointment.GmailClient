@@ -39,6 +39,7 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Web
             services.AddSingleton<Application.IConfiguration, MvcCoreConfiguration>();
             services.AddSingleton<ConfigurationManager, ConfigurationManager>();
             services.AddSingleton<GmailApplication, GmailApplication>();
+            services.AddSingleton<TimerApplication, TimerApplication>();
             services.AddSingleton<OAuthHelper>();
         }
 
@@ -53,6 +54,9 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Web
                     var exception = exceptionHandlerPathFeature.Error;
                     if (exception is GmailUnauthorizedException)
                     {
+                        var timerApplication = context.RequestServices.GetService<TimerApplication>();
+                        timerApplication.Stop();
+
                         var oAuthHelper = context.RequestServices.GetService<OAuthHelper>();
                         context.Response.Redirect(oAuthHelper.OAuthURL(context.Request.Path));
                     }

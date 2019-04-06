@@ -1,3 +1,13 @@
 ﻿@{
     ViewData["Title"] = "Gmail Client";
+    var IsTimerEnabled = ViewBag.IsTimerEnabled;
+}
+
+@if (!IsTimerEnabled)
+{
+    <a href="/Home/StartTimer" class="btn btn-success">Start Timer</a>
+}
+else
+{
+    <a class="btn btn-danger">Stop Timer</a>
 }
