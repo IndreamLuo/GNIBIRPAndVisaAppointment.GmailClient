@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Gmail Client";
     var IsTimerEnabled = ViewBag.IsTimerEnabled;
+    var Records = ViewBag.Records;
 }
 
 @if (!IsTimerEnabled)
@@ -9,5 +10,10 @@
 }
 else
 {
-    <a class="btn btn-danger">Stop Timer</a>
+    <a href="/Home/StopTimer" class="btn btn-danger">Stop Timer</a>
+}
+
+@foreach (var record in Records)
+{
+    <br />@record
 }

@@ -12,14 +12,17 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Web.Controllers
     public class HomeController : Controller
     {
         TimerApplication TimerApplication;
-        public HomeController(TimerApplication timerApplication)
+        GmailApplication GmailApplication;
+        public HomeController(TimerApplication timerApplication, GmailApplication gmailApplication)
         {
             TimerApplication = timerApplication;
+            GmailApplication = gmailApplication;
         }
 
         public IActionResult Index()
         {
             ViewBag.IsTimerEnabled = TimerApplication.IsEnabled;
+            ViewBag.Records = GmailApplication.GetNewestAppointmentLettersRecords;
 
             return View();
         }
@@ -27,6 +30,12 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Web.Controllers
         public async Task<IActionResult> StartTimer()
         {
             await TimerApplication.Start();
+            return Redirect("/");
+        }
+
+        public async Task<IActionResult> StopTimer()
+        {
+            await TimerApplication.Stop();
             return Redirect("/");
         }
 

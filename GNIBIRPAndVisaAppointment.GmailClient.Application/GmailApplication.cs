@@ -26,7 +26,10 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
             HomeApiToken = configuration["HomeApiToken"];
             SubmitAppointmentLetterUrl = configuration["HomeUrl"] + "Api/AppointmentLetter/Submit";
             NotUploadedLabelName = configuration["NotUploadedLabelName"];
+            GetNewestAppointmentLettersRecords = new List<DateTime>();
         }
+
+        public List<DateTime> GetNewestAppointmentLettersRecords { get; private set; }
 
         public async Task GetNewestAppointmentLetters()
         {
@@ -78,6 +81,8 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
                     }
                 }
             }
+
+            GetNewestAppointmentLettersRecords.Add(DateTime.Now);
         }
 
         public async Task<bool> SubmitAppointmentLetter(string id, string message)
