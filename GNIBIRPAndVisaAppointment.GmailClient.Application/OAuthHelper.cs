@@ -86,11 +86,13 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
         }
 
         public async Task RefreshAuthorizationAsync()
-        {using (var httpClient = new HttpClient())
+        {
+            using (var httpClient = new HttpClient())
             {
                 var response = await httpClient.PostAsync(TokenURL, new FormUrlEncodedContent(new []
                 {
                     new KeyValuePair<string, string>("refresh_token", RefreshToken),
+                    new KeyValuePair<string, string>("client_id", ClientId),
                     new KeyValuePair<string, string>("client_secret", ClientSecret),
                     new KeyValuePair<string, string>("redirect_uri", AuthorizedURL),
                     new KeyValuePair<string, string>("grant_type", "refresh_token")
