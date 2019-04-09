@@ -68,7 +68,7 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
                         }
 
                         var emailMessageBytes = Convert.FromBase64String(base64UrlMessage);
-                        var emailMessage = Encoding.ASCII.GetString(emailMessageBytes);
+                        var emailMessage = Encoding.UTF8.GetString(emailMessageBytes);
 
                         if (await SubmitAppointmentLetter(message.Id, emailMessage))
                         {
