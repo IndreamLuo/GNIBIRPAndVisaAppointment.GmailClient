@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using static Google.Apis.Gmail.v1.UsersResource.MessagesResource.GetRequest;
@@ -18,6 +19,8 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
         readonly ConfigurationManager ConfigurationManager;
         readonly string HomeApiToken;
         readonly string SubmitAppointmentLetterUrl;
+        readonly string ApplicationName;
+
         readonly string NotUploadedLabelName;
         public GmailApplication(OAuthHelper oAuthHelper, ConfigurationManager configurationManager, IConfiguration configuration)
         {
@@ -26,6 +29,7 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
             HomeApiToken = configuration["HomeApiToken"];
             SubmitAppointmentLetterUrl = configuration["HomeUrl"] + "Api/AppointmentLetter/Submit";
             NotUploadedLabelName = configuration["NotUploadedLabelName"];
+            ApplicationName = configuration["ApplicationName"];
             GetNewestAppointmentLettersRecords = new List<DateTime>();
         }
 
@@ -38,7 +42,7 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
             using (var gmailService = new GmailService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
-                ApplicationName = "GNIBIRPVisa",
+                ApplicationName = ApplicationName,
             }))
             {
                 var getLabelsRequest = gmailService.Users.Labels.List("me");
@@ -97,6 +101,34 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
                 }));
 
                 return response.StatusCode == HttpStatusCode.Accepted;
+            }
+        }
+
+        public string GetEmailMessage(string to, string subject, string body)
+        {
+            return $"To: {to}\r\nSubject: {subject} Test\r\nContent-Type: text/html; charset=us-ascii\r\n\r\n{body}";
+        }
+
+        public async Task SendAsync(string to, string subject, string body)
+        {
+            var mailMessage = GetEmailMessage(to, subject, body);
+            var message = System.Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes(mailMessage))
+                .TrimEnd('-')
+                .Replace('+', '-')
+                .Replace('/', '_');
+
+            var credential = await OAuthHelper.GetCredentialAsync();
+
+            using (var gmailService = new GmailService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = ApplicationName,
+            }))
+            {
+                gmailService.Users.Messages.Send(new Message
+                {
+                    Raw = message
+                }, "me").Execute();
             }
         }
     }
