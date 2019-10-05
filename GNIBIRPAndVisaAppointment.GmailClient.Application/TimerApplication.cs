@@ -11,7 +11,7 @@ namespace GNIBIRPAndVisaAppointment.GmailClient.Application
         {
             GmailApplication = gmailApplication;
             Timer = new Timer();
-            Timer.Interval = 1200000;
+            Timer.Interval = 300000;
             Timer.Elapsed += (sender, e) => Tick();
         }
         
